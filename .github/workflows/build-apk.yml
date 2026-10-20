@@ -1,0 +1,36 @@
+
+name: Build POWER GYM APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Create Android platform files
+        run: cd power_gym_flutter && flutter create . --platforms=android
+
+      - name: Build APK
+        working-directory: power_gym_flutter
+        run: flutter pub get && flutter build apk --release
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: power-gym-apk
+          path: power_gym_flutter/build/app/outputs/flutter-apk/app-release.apk
